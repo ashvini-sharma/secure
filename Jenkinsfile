@@ -26,7 +26,7 @@ pipeline {
             }
         }
 
-/*
+        /*
         stage('Upload Jar To S3') {
             steps {
                 withCredentials([
@@ -44,8 +44,9 @@ pipeline {
                 }
             }
         }
+        */
     }
-*/
+
     post {
         success {
             echo 'Build completed and JAR uploaded.'
