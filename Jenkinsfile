@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         AWS_REGION = 'ap-south-1'
-        S3_BUCKET = 'my-springboot-artifacts'
+        S3_BUCKET = 'jenkins-project-springboot-artifacts'
     }
 
     stages {
@@ -26,12 +26,18 @@ pipeline {
             }
         }
 
-        /*
         stage('Upload Jar To S3') {
+            agent {
+                docker {
+                    image 'amazon/aws-cli'
+                    args "--entrypoint=''"
+                    reuseNode true
+                }
+            }
             steps {
                 withCredentials([
                     [$class: 'AmazonWebServicesCredentialsBinding',
-                     credentialsId: 'aws-creds']
+                     credentialsId: 'aws-creds-user-S3-jenkins-project-springboot-artifacts']
                 ]) {
 
                     sh '''
@@ -44,7 +50,7 @@ pipeline {
                 }
             }
         }
-        */
+        
     }
 
     post {
