@@ -56,7 +56,7 @@ pipeline {
                 }
             }
         }
-
+    }
     post {
         success {
             echo 'Build completed and JAR uploaded.'
