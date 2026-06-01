@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        APP_NAME='Secure-app'
+        APP_NAME='secure-app'
         AWS_REGION = 'ap-south-1'
         S3_BUCKET = 'jenkins-project-springboot-artifacts'
     }
