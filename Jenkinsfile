@@ -29,7 +29,9 @@ pipeline {
 
         stage('Image') {
             steps {
-                docker build -t 'Secure-app:$BUILD_ID' .
+                sh '''
+                    docker build -t 'Secure-app:$BUILD_ID' .
+                sh '''
             }
         }
 
