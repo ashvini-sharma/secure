@@ -3,9 +3,10 @@ pipeline {
 
     environment {
         APP_NAME = 'secure-app'
+        AWS_ACCOUNT_ID = '562437414962'
         AWS_REGION = 'ap-south-1'
         S3_BUCKET = 'jenkins-project-springboot-artifacts'
-        AWS_DOCKER_REGISTRY = '562437414962.dkr.ecr.ap-south-1.amazonaws.com'
+        AWS_DOCKER_REGISTRY = '${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com'
         ECR_REPO = 'learnjenkinsrepo'
     }
 
@@ -32,36 +33,38 @@ pipeline {
 
         stage('Build Project Image') {
             steps {
-                sh 'docker build -t $APP_NAME:$BUILD_ID .'
+                sh 'docker build --platform linux/amd64 -t $APP_NAME:$BUILD_ID .'
             }
         }
 
+        /*
         stage('Build Custom AWS-CLI Image') {
             steps {
                 sh 'docker build -f Dockerfile-aws-cli -t my-aws-cli .'
             }
         }
+        */
 
         stage('Upload Image to ECR') {
-            agent {
-                docker {
-                    image 'amazon/my-aws-cli'
-                    args "-u root -v /var/run/docker.sock:/var/run/docker.sock --entrypoint=''"
-                    reuseNode true
-                }
-            }
             steps {
-                withCredentials([usernamePassword(credentialsId: 'aws-creds-user-S3-jenkins-project-springboot-artifacts', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
+               withCredentials([
+                    usernamePassword(
+                        credentialsId: 'aws-creds-user-S3-jenkins-project-springboot-artifacts',
+                        usernameVariable: 'AWS_ACCESS_KEY_ID',
+                        passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                    )
+                ]) {
                     sh '''
-                        docker build -t $AWS_DOCKER_REGISTRY/$ECR_REPO/$APP_NAME:$BUILD_ID .
-                        aws ecr get-login-password | docker login --username AWS --password-stdin $AWS_DOCKER_REGISTRY
-                        docker push $AWS_DOCKER_REGISTRY/$ECR_REPO/$APP_NAME:$BUILD_ID
+                        aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_DOCKER_REGISTRY}
+
+                        docker tag ${APP_NAME}:${BUILD_ID} ${AWS_DOCKER_REGISTRY}/${ECR_REPO}:${BUILD_ID}
+
+                        docker push ${AWS_DOCKER_REGISTRY}/${ECR_REPO}:${BUILD_ID}
                     '''
                 }
             }
         }
 
-        /*
         stage('Upload Jar To S3') {
             agent {
                 docker {
@@ -83,8 +86,8 @@ pipeline {
                 }
             }
         }
-        */
     }
+    
     post {
         success {
             echo 'Build completed and JAR uploaded.'
