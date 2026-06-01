@@ -28,14 +28,8 @@ pipeline {
         }
 
         stage('Image') {
-            agent {
-                docker {
-                    image 'maven:3.9.11-eclipse-temurin-21'
-                    reuseNode true
-                }
-            }
             steps {
-                docker build -t 'Secure-app:$BUILD_ID'
+                docker build -t 'Secure-app:$BUILD_ID' .
             }
         }
 
