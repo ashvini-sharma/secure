@@ -6,7 +6,6 @@ pipeline {
         AWS_ACCOUNT_ID = '562437414962'
         AWS_REGION = 'ap-south-1'
         S3_BUCKET = 'jenkins-project-springboot-artifacts'
-        AWS_DOCKER_REGISTRY = '${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com'
         ECR_REPO = 'learnjenkinsrepo'
     }
 
@@ -37,13 +36,15 @@ pipeline {
             }
         }
 
-        /*
-        stage('Build Custom AWS-CLI Image') {
+        stage('Debug Env before ECR Push') {
             steps {
-                sh 'docker build -f Dockerfile-aws-cli -t my-aws-cli .'
+                sh '''
+                    echo AWS_REGION=$AWS_REGION
+                    echo AWS_ACCOUNT_ID=$AWS_ACCOUNT_ID
+                    echo AWS_DOCKER_REGISTRY=$AWS_DOCKER_REGISTRY
+                '''
             }
         }
-        */
 
         stage('Upload Image to ECR') {
             steps {
@@ -55,11 +56,11 @@ pipeline {
                     )
                 ]) {
                     sh '''
-                        aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_DOCKER_REGISTRY}
+                        aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
 
-                        docker tag ${APP_NAME}:${BUILD_ID} ${AWS_DOCKER_REGISTRY}/${ECR_REPO}:${BUILD_ID}
+                        docker tag $APP_NAME:$BUILD_ID $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:$BUILD_ID
 
-                        docker push ${AWS_DOCKER_REGISTRY}/${ECR_REPO}:${BUILD_ID}
+                        docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:$BUILD_ID
                     '''
                 }
             }
@@ -79,15 +80,13 @@ pipeline {
                     sh '''
                     JAR_FILE=$(ls target/*.jar | head -1)
 
-                    aws s3 cp \
-                        $JAR_FILE \
-                        s3://${S3_BUCKET}/
+                    aws s3 cp $JAR_FILE s3://$S3_BUCKET/
                     '''
                 }
             }
         }
     }
-    
+
     post {
         success {
             echo 'Build completed and JAR uploaded.'
