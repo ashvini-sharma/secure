@@ -30,19 +30,23 @@ pipeline {
             }
         }
 
-        stage('Build Image') {
+        stage('Build Project Image') {
             steps {
-                sh '''
-                    docker build -t $APP_NAME:$BUILD_ID .
-                sh '''
+                sh 'docker build -t $APP_NAME:$BUILD_ID .'
+            }
+        }
+
+        stage('Build Custom AWS-CLI Image') {
+            steps {
+                sh 'docker build -f Dockerfile-aws-cli -t my-aws-cli .'
             }
         }
 
         stage('Upload Image to ECR') {
             agent {
                 docker {
-                    image 'amazon/aws-cli'
-                    args "--entrypoint=''"
+                    image 'amazon/my-aws-cli'
+                    args "-u root -v /var/run/docker.sock:/var/run/docker.sock --entrypoint=''"
                     reuseNode true
                 }
             }
