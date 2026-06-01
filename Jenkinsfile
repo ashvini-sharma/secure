@@ -2,6 +2,7 @@ pipeline {
     agent any
 
     environment {
+        APP_NAME='Secure-app'
         AWS_REGION = 'ap-south-1'
         S3_BUCKET = 'jenkins-project-springboot-artifacts'
     }
@@ -30,7 +31,7 @@ pipeline {
         stage('Image') {
             steps {
                 sh '''
-                    docker build -t 'Secure-app:$BUILD_ID' .
+                    docker build -t $APP_NAME:$BUILD_ID .
                 sh '''
             }
         }
