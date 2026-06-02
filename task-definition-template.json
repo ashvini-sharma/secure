@@ -1,0 +1,26 @@
+{
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "family": "secure-app-taskDefinition",
+    "containerDefinitions": [
+        {
+            "name": "secureapp",
+            "image": "IMAGE_URI_PLACEHOLDER",
+            "portMappings": [
+                {
+                    "containerPort": 80,
+                    "hostPort": 9080,
+                    "protocol": "tcp",
+                    "appProtocol": "http"
+                }
+            ],
+            "essential": true
+        }
+    ],
+    "volumes": [],
+    "networkMode": "awsvpc",
+    "memory": "512",
+    "cpu": "256",
+    "executionRoleArn": ""
+}

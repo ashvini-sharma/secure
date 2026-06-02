@@ -7,6 +7,9 @@ pipeline {
         AWS_REGION = 'ap-south-1'
         S3_BUCKET = 'jenkins-project-springboot-artifacts'
         ECR_REPO = 'learnjenkinsrepo'
+        AWS_ECS_CLUSTER = 'secure-app-cluster-prod'
+        AWS_ECS_SERVICE = 'secure-app-service-prod'
+        AWS_ECS_TD_FAMILY = 'secure-app-taskDefinition'
     }
 
     stages {
@@ -48,7 +51,12 @@ pipeline {
 
         stage('Upload Image to ECR') {
             steps {
-               withCredentials([
+                script {
+                    env.IMAGE_URI = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}:${BUILD_ID}"
+                    echo "IMAGE_URI=${env.IMAGE_URI}"
+                }
+        
+                withCredentials([
                     usernamePassword(
                         credentialsId: 'aws-creds-user-S3-jenkins-project-springboot-artifacts',
                         usernameVariable: 'AWS_ACCESS_KEY_ID',
@@ -61,6 +69,33 @@ pipeline {
                         docker tag $APP_NAME:$BUILD_ID $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:$BUILD_ID
 
                         docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:$BUILD_ID
+                    '''
+                }
+            }
+        }
+
+        stage('Prepare Task Definition') {
+    			steps {
+        			sh '''
+            			sed \
+            			"s|IMAGE_URI_PLACEHOLDER|${IMAGE_URI}|g" task-definition-template.json > task-definition-prod.json
+        			'''
+    			}
+		}
+
+        stage('Register ECS Task Definition and Update ECS Service') {
+            steps {
+               withCredentials([
+                    usernamePassword(
+                        credentialsId: 'aws-creds-user-S3-jenkins-project-springboot-artifacts',
+                        usernameVariable: 'AWS_ACCESS_KEY_ID',
+                        passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                    )
+                ]) {
+                    sh '''
+                        LATEST_TD_REVISION=$(aws ecs register-task-definition --cli-input-json file://task-definition-prod.json | jq '.taskDefinition.revision')
+                        aws ecs update-service --cluster $AWS_ECS_CLUSTER --service $AWS_ECS_SERVICE --task-definition $AWS_ECS_TD_FAMILY:$LATEST_TD_REVISION
+                        aws ecs wait services-stable --cluster $AWS_ECS_CLUSTER --services $AWS_ECS_SERVICE
                     '''
                 }
             }
