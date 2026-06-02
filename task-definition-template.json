@@ -18,6 +18,14 @@
             "essential": true
         }
     ],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "/ecs/secure-app",
+        "awslogs-region": "ap-south-1",
+        "awslogs-stream-prefix": "ecs"
+      }
+    },
     "volumes": [],
     "networkMode": "awsvpc",
     "memory": "512",
