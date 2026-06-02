@@ -36,7 +36,6 @@ pipeline {
         stage('Build Project Image') {
             steps {
                 sh 'docker build -t --platform linux/amd64 $APP_NAME:$BUILD_ID .'
-                //sh 'docker buildx build --platform linux/amd64,linux/arm64 -t $APP_NAME:$BUILD_ID --push .'
             }
         }
 
