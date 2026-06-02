@@ -93,9 +93,9 @@ pipeline {
                     )
                 ]) {
                     sh '''
-                        LATEST_TD_REVISION=$(aws ecs register-task-definition --cli-input-json file://task-definition-prod.json | jq '.taskDefinition.revision')
-                        if [ -z '$LATEST_TD_REVISION' ]; then
-                            echo 'FAILED - Task definition registration with ECS'
+                        LATEST_TD_REVISION=$(aws ecs register-task-definition --cli-input-json file://task-definition-prod.json | jq -r '.taskDefinition.revision')
+                        if [ -z "$LATEST_TD_REVISION" ]; then
+                            echo "FAILED - Task definition registration with ECS"
                             exit 1
                             fi
                         aws ecs update-service --cluster $AWS_ECS_CLUSTER --service $AWS_ECS_SERVICE --task-definition $AWS_ECS_TD_FAMILY:$LATEST_TD_REVISION
@@ -106,13 +106,6 @@ pipeline {
         }
 
         stage('Upload Jar To S3') {
-            agent {
-                docker {
-                    image 'amazon/aws-cli'
-                    args "--entrypoint=''"
-                    reuseNode true
-                }
-            }
             steps {
                 withCredentials([usernamePassword(credentialsId: 'aws-creds-user-S3-jenkins-project-springboot-artifacts', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
 
