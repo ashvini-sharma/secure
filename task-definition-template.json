@@ -1,34 +1,35 @@
+
 {
-    "requiresCompatibilities": [
-        "FARGATE"
-    ],
-    "family": "secure-app-taskDefinition",
-    "containerDefinitions": [
+  "family": "secure-app-taskDefinition",
+  "containerDefinitions": [
+    {
+      "name": "secureapp",
+      "image": "IMAGE_URI_PLACEHOLDER",
+
+      "portMappings": [
         {
-            "name": "secureapp",
-            "image": "IMAGE_URI_PLACEHOLDER",
-            "portMappings": [
-                {
-                    "containerPort": 8080,
-                    "hostPort": 8080,
-                    "protocol": "tcp",
-                    "appProtocol": "http"
-                }
-            ],
-            "essential": true
+          "containerPort": 8080,
+          "hostPort": 8080,
+          "protocol": "tcp",
+          "appProtocol": "http"
         }
-    ],
-    "logConfiguration": {
-      "logDriver": "awslogs",
-      "options": {
-        "awslogs-group": "/ecs/secure-app",
-        "awslogs-region": "ap-south-1",
-        "awslogs-stream-prefix": "ecs"
+      ],
+
+      "essential": true,
+
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/secure-app",
+          "awslogs-region": "ap-south-1",
+          "awslogs-stream-prefix": "ecs"
+        }
       }
-    },
-    "volumes": [],
-    "networkMode": "awsvpc",
-    "memory": "512",
-    "cpu": "256",
-    "executionRoleArn": "arn:aws:iam::562437414962:role/ecsTaskExecutionRole"
+    }
+  ],
+
+  "networkMode": "awsvpc",
+  "memory": "512",
+  "cpu": "256",
+  "executionRoleArn": "arn:aws:iam::562437414962:role/ecsTaskExecutionRole"
 }

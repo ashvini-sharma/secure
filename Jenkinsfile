@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         APP_NAME = 'secure-app'
-        AWS_ACCOUNT_ID = '562437414962'
+        AWS_ACCOUNT_ID = '562437414962' 
         AWS_REGION = 'ap-south-1'
         S3_BUCKET = 'jenkins-project-springboot-artifacts'
         ECR_REPO = 'learnjenkinsrepo'
@@ -94,6 +94,10 @@ pipeline {
                 ]) {
                     sh '''
                         LATEST_TD_REVISION=$(aws ecs register-task-definition --cli-input-json file://task-definition-prod.json | jq '.taskDefinition.revision')
+                        if [ -z '$LATEST_TD_REVISION' ]; then
+                            echo 'FAILED - Task definition registration with ECS'
+                            exit 1
+                            fi
                         aws ecs update-service --cluster $AWS_ECS_CLUSTER --service $AWS_ECS_SERVICE --task-definition $AWS_ECS_TD_FAMILY:$LATEST_TD_REVISION
                         aws ecs wait services-stable --cluster $AWS_ECS_CLUSTER --services $AWS_ECS_SERVICE
                     '''
