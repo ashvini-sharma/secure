@@ -35,7 +35,7 @@ pipeline {
 
         stage('Build Project Image') {
             steps {
-                sh 'docker build -t --platform linux/amd64 $APP_NAME:$BUILD_ID .'
+                sh 'docker build --platform linux/amd64 -t $APP_NAME:$BUILD_ID .'
             }
         }
 
