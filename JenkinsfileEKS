@@ -73,6 +73,36 @@ pipeline {
             }
         }
 
+        stage('Deploy To EKS') {
+
+            steps {
+
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'aws-creds-user-S3-jenkins-project-springboot-artifacts',
+                        usernameVariable: 'AWS_ACCESS_KEY_ID',
+                        passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                    )
+                ]) {
+
+                    sh '''
+                        aws eks update-kubeconfig --region $AWS_REGION --name secure-cluster
+
+                        sed "s|IMAGE_URI_PLACEHOLDER|${IMAGE_URI}|g" deployment.yaml > deployment-prod.yaml
+
+                        kubectl apply -f deployment-prod.yaml
+
+                        kubectl apply -f service.yaml
+
+                        kubectl rollout restart deployment secure-app
+
+                        kubectl rollout status deployment secure-app
+                    '''
+                    }
+            }
+        }
+        
+
         /*
         stage('Prepare Task Definition') {
     			steps {
