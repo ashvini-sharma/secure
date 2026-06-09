@@ -47,6 +47,25 @@ pipeline {
                 '''
             }
         }
+        stage('Verify AWS Credentials') {
+    steps {
+        withCredentials([
+            usernamePassword(
+                credentialsId: 'aws-creds-user-S3-jenkins-project-springboot-artifacts',
+                usernameVariable: 'AWS_ACCESS_KEY_ID',
+                passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+            )
+        ]) {
+            sh '''
+            echo "Testing AWS Credentials"
+
+            aws sts get-caller-identity \
+              --region ap-south-1 \
+              --no-cli-pager
+            '''
+        }
+    }
+}
 
         stage('Upload Image to ECR') {
             steps {
