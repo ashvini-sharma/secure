@@ -51,7 +51,7 @@ pipeline {
     steps {
         withCredentials([
             usernamePassword(
-                credentialsId: 'aws-creds-user-S3-jenkins-project-springboot-artifacts',
+                credentialsId: 'Jenkins-user',
                 usernameVariable: 'AWS_ACCESS_KEY_ID',
                 passwordVariable: 'AWS_SECRET_ACCESS_KEY'
             )
@@ -76,7 +76,7 @@ pipeline {
         
                 withCredentials([
                     usernamePassword(
-                        credentialsId: 'aws-creds-user-S3-jenkins-project-springboot-artifacts',
+                        credentialsId: 'Jenkins-user',
                         usernameVariable: 'AWS_ACCESS_KEY_ID',
                         passwordVariable: 'AWS_SECRET_ACCESS_KEY'
                     )
@@ -98,7 +98,7 @@ pipeline {
 
                 withCredentials([
                     usernamePassword(
-                        credentialsId: 'aws-creds-user-S3-jenkins-project-springboot-artifacts',
+                        credentialsId: 'Jenkins-user',
                         usernameVariable: 'AWS_ACCESS_KEY_ID',
                         passwordVariable: 'AWS_SECRET_ACCESS_KEY'
                     )
@@ -136,7 +136,7 @@ pipeline {
             steps {
                withCredentials([
                     usernamePassword(
-                        credentialsId: 'aws-creds-user-S3-jenkins-project-springboot-artifacts',
+                        credentialsId: 'Jenkins-user',
                         usernameVariable: 'AWS_ACCESS_KEY_ID',
                         passwordVariable: 'AWS_SECRET_ACCESS_KEY'
                     )
@@ -157,7 +157,7 @@ pipeline {
 
         stage('Upload Jar To S3') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'aws-creds-user-S3-jenkins-project-springboot-artifacts', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
+                withCredentials([usernamePassword(credentialsId: 'Jenkins-user', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
 
                     sh '''
                     JAR_FILE=$(ls target/*.jar | head -1)
