@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: secure-app
+
+spec:
+  replicas: 3
+
+  selector:
+    matchLabels:
+      app: secure-app
+
+  template:
+    metadata:
+      labels:
+        app: secure-app
+
+    spec:
+      containers:
+      - name: secure-app
+
+        image: IMAGE_URI_PLACEHOLDER
+
+        ports:
+        - containerPort: 8080

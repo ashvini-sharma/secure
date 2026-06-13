@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: secure-app
+
+spec:
+  replicas: 3
+
+  selector:
+    matchLabels:
+      app: secure-app
+
+  template:
+    metadata:
+      labels:
+        app: secure-app
+
+    spec:
+      containers:
+      - name: secure-app
+
+        image: 562437414962.dkr.ecr.ap-south-1.amazonaws.com/learnjenkinsrepo:5
+
+        ports:
+        - containerPort: 8080
